@@ -1,0 +1,50 @@
+-- 1. Создание временной таблицы для данных
+CREATE TABLE clients (
+    client_id NUMBER PRIMARY KEY,
+    fio VARCHAR2(100),
+    account_name VARCHAR2(200)
+);
+
+-- Вставка данных в таблицу (это пример, для полной таблицы нужно добавить все строки)
+INSERT INTO clients (client_id, fio, account_name) VALUES (1, 'Николаева Валерия Матвеевна', 'Просроченные % Жирковой В.М.');
+INSERT INTO clients (client_id, fio, account_name) VALUES (2, 'Бобров Геннадий Куприянович', 'Просроч. % Боброва Г. К.');
+-- Добавьте остальные записи аналогичным образом...
+
+-- 2. Создание процедуры для исправления наименований счетов
+CREATE OR REPLACE PROCEDURE update_account_names IS
+    cursor client_cursor IS
+        SELECT client_id, fio, account_name
+        FROM clients;
+
+    client_rec client_cursor%ROWTYPE;
+    correct_fio VARCHAR2(100);
+    correct_pattern VARCHAR2(200);
+    regex VARCHAR2(200);
+BEGIN
+    FOR client_rec IN client_cursor LOOP
+        -- Формируем правильный паттерн для поиска
+        correct_fio := client_rec.fio;
+        correct_pattern := REGEXP_REPLACE(correct_fio, '^([^ ]+) +([^ ]+).+', '\1 \2');
+
+        -- Заменяем фамилию в наименовании счета на правильную
+        regex := '.*( ' || correct_pattern || ' *).*';
+
+        -- Если фамилия не совпадает, то заменяем ее
+        IF NOT REGEXP_LIKE(client_rec.account_name, regex) THEN
+            UPDATE clients
+            SET account_name = REGEXP_REPLACE(client_rec.account_name, '[^ ]+ *[^ ]+', correct_pattern)
+            WHERE client_id = client_rec.client_id;
+        END IF;
+    END LOOP;
+
+    COMMIT;
+END;
+/
+
+-- 3. Выполнение процедуры
+BEGIN
+    update_account_names;
+END;
+
+-- 4. Проверка результата
+SELECT * FROM clients;

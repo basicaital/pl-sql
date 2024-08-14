@@ -1,0 +1,3 @@
+BEGIN
+   DBMS_OUTPUT.PUT_LINE(get_working_days(TO_DATE('2023-08-01', 'YYYY-MM-DD'), TO_DATE('2023-08-10', 'YYYY-MM-DD')));
+END;

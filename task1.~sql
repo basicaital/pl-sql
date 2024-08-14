@@ -1,0 +1,22 @@
+BEGIN
+  FOR rec IN phones LOOP
+    v_phone := rec.phone_number;
+    --Проверка на "золотой" номер
+    IF SUBSTR(v_phone, 1, 1) = SUBSTR(v_phone, 2, 1) AND
+      SUBSTR(v_phone, 2, 1) = SUBSTR(v_phone, 3, 1) AND
+      SUBSTR(v_phone, 4, 1) = SUBSTR(v_phone, 5, 1) AND
+      SUBSTR(v_phone, 5, 1) = SUBSTR(v_phone, 6, 1) THEN
+      DBMS_OUTPUT.PUT_LINE(v_phone || ' - Золотой номер');
+    ELSIF SUBSTR(v_phone, 1, 3) = SUBSTR(v_phone, 4, 3) THEN
+      DBMS_OUTPUT.PUT_LINE(v_phone || ' - Золотой номер');
+    END IF;
+    
+    --Проверка на "зекральный" номер
+    IF SUBSTR(v_phone, 1, 1) = SUBSTR(v_phone, 6, 1) AND
+      SUBSTR(v_phone, 2, 1) = SUBSTR(v_phone, 5, 1) AND
+      SUBSTR(v_phone, 3, 1) = SUBSTR(v_phone, 4, 1) THEN
+      DBMS_OUTPUT.PUT_LINE(v_phone || ' - Зеркальный номер');
+    END IF;
+  END LOOP;
+END;
+      
